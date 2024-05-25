@@ -1,0 +1,64 @@
+'''
+Требуется для своего варианта второй части л.р. №6 (усложненной программы) разработать реализацию с использованием
+ графического интерфейса. Допускается использовать любую графическую библиотеку питона.
+Рекомендуется использовать внутреннюю библиотеку питона  tkinter.
+
+
+
+Вариант 11. Сгенерировать все возможные варианты двумерного массива (К*Т) из чисел 0, 1 и 2. '''
+
+
+
+import tkinter as tk
+import itertools
+
+class ArrayGenerator:
+    def __init__(self, master):
+        self.master = master
+        master.title("Генератор двумерных массивов")
+
+        # Labels and Entry widgets for K and T
+        self.k_label = tk.Label(master, text="Количество строк (K):")
+        self.k_label.grid(row=0, column=0, padx=5, pady=5)
+        self.k_entry = tk.Entry(master)
+        self.k_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        self.t_label = tk.Label(master, text="Количество столбцов (T):")
+        self.t_label.grid(row=1, column=0, padx=5, pady=5)
+        self.t_entry = tk.Entry(master)
+        self.t_entry.grid(row=1, column=1, padx=5, pady=5)
+
+        # Button to generate arrays
+        self.generate_button = tk.Button(master, text="Сгенерировать", command=self.generate_arrays)
+        self.generate_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+
+        # Text widget to display results
+        self.result_text = tk.Text(master, wrap=tk.WORD)
+        self.result_text.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+
+    def generate_arrays(self):
+        try:
+            k = int(self.k_entry.get())
+            t = int(self.t_entry.get())
+
+            # Clear previous results
+            self.result_text.delete("1.0", tk.END)
+
+            # Generate arrays and display them
+            for array in self.generate_arrays_helper(k, t):
+                self.result_text.insert(tk.END, str(array) + "\n")
+
+        except ValueError:
+            self.result_text.insert(tk.END, "Некорректные значения K и T.\n")
+
+    def generate_arrays_helper(self, k, t):
+        
+        values = [0, 1, 2]
+        for combination in itertools.product(values, repeat=k * t):
+            array = [list(combination[i:i + t]) for i in range(0, k * t, t)]
+            yield array
+
+
+root = tk.Tk()
+app = ArrayGenerator(root)
+root.mainloop()
