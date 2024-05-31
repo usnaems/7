@@ -12,6 +12,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import Scrollbar, VERTICAL
+import itertools
 
 class ArrayGenerator:
     def __init__(self, master):
@@ -39,7 +40,7 @@ class ArrayGenerator:
 
         # Фрейм для отображения массивов
         self.array_frame = tk.Frame(master)
-        self.array_frame.pack()
+        self.array_frame.pack(fill=tk.BOTH, expand=True)
 
         # Скроллбар
         self.scrollbar = Scrollbar(self.array_frame, orient=VERTICAL)
@@ -65,17 +66,12 @@ class ArrayGenerator:
         self.text_area.delete("1.0", tk.END)
 
         # Генерация всех возможных массивов
-        for i in range(3** (k*t)):
-            # Преобразование десятичного числа в троичное
-            array_str = str(bin(i)[2:].zfill(k*t))
-            # Разбиение на строчки массива
-            array = [array_str[j:j+k] for j in range(0, len(array_str), k)]
-            # Преобразование строк в массивы из чисел 0, 1, 2
-            array = [[int(x) for x in row] for row in array]
+        for combination in itertools.product(range(3), repeat=k*t):
+            # Разбиение комбинации на строки массива
+            array = [list(combination[j:j+k]) for j in range(0, len(combination), k)]
             # Вывод массива в текстовое поле
             self.text_area.insert(tk.END, str(array) + "\n")
 
 root = tk.Tk()
 app = ArrayGenerator(root)
 root.mainloop()
-
