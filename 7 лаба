@@ -10,55 +10,72 @@
 
 
 import tkinter as tk
-import itertools
+from tkinter import ttk
+from tkinter import Scrollbar, VERTICAL
 
 class ArrayGenerator:
     def __init__(self, master):
         self.master = master
         master.title("Генератор двумерных массивов")
 
-        # Labels and Entry widgets for K and T
-        self.k_label = tk.Label(master, text="Количество строк (K):")
-        self.k_label.grid(row=0, column=0, padx=5, pady=5)
-        self.k_entry = tk.Entry(master)
-        self.k_entry.grid(row=0, column=1, padx=5, pady=5)
+        # Фрейм для ввода размеров массива
+        size_frame = tk.Frame(master)
+        size_frame.pack()
 
-        self.t_label = tk.Label(master, text="Количество столбцов (T):")
-        self.t_label.grid(row=1, column=0, padx=5, pady=5)
-        self.t_entry = tk.Entry(master)
-        self.t_entry.grid(row=1, column=1, padx=5, pady=5)
+        # Метки и поля ввода для К и Т
+        self.k_label = tk.Label(size_frame, text="Количество строк (K):")
+        self.k_label.pack(side=tk.LEFT)
+        self.k_entry = tk.Entry(size_frame)
+        self.k_entry.pack(side=tk.LEFT)
 
-        # Button to generate arrays
-        self.generate_button = tk.Button(master, text="Сгенерировать", command=self.generate_arrays)
-        self.generate_button.grid(row=2, column=0, columnspan=2, padx=5, pady=5)
+        self.t_label = tk.Label(size_frame, text="Количество столбцов (T):")
+        self.t_label.pack(side=tk.LEFT)
+        self.t_entry = tk.Entry(size_frame)
+        self.t_entry.pack(side=tk.LEFT)
 
-        # Text widget to display results
-        self.result_text = tk.Text(master, wrap=tk.WORD)
-        self.result_text.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+        # Кнопка для генерации массива
+        generate_button = tk.Button(master, text="Сгенерировать", command=self.generate_arrays)
+        generate_button.pack()
+
+        # Фрейм для отображения массивов
+        self.array_frame = tk.Frame(master)
+        self.array_frame.pack()
+
+        # Скроллбар
+        self.scrollbar = Scrollbar(self.array_frame, orient=VERTICAL)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Текстовое поле для вывода массивов
+        self.text_area = tk.Text(self.array_frame, wrap=tk.WORD, yscrollcommand=self.scrollbar.set)
+        self.text_area.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Связывание скроллбара с текстовым полем
+        self.scrollbar.config(command=self.text_area.yview)
 
     def generate_arrays(self):
+        # Получение размеров массива
         try:
             k = int(self.k_entry.get())
             t = int(self.t_entry.get())
-
-            # Clear previous results
-            self.result_text.delete("1.0", tk.END)
-
-            # Generate arrays and display them
-            for array in self.generate_arrays_helper(k, t):
-                self.result_text.insert(tk.END, str(array) + "\n")
-
         except ValueError:
-            self.result_text.insert(tk.END, "Некорректные значения K и T.\n")
+            tk.messagebox.showerror("Ошибка", "Неверный формат размеров массива")
+            return
 
-    def generate_arrays_helper(self, k, t):
-        
-        values = [0, 1, 2]
-        for combination in itertools.product(values, repeat=k * t):
-            array = [list(combination[i:i + t]) for i in range(0, k * t, t)]
-            yield array
+        # Очистка предыдущего вывода
+        self.text_area.delete("1.0", tk.END)
 
+        # Генерация всех возможных массивов
+        for i in range(3** (k*t)):
+            # Преобразование десятичного числа в троичное
+            array_str = str(bin(i)[2:].zfill(k*t))
+            # Разбиение на строчки массива
+            array = [array_str[j:j+k] for j in range(0, len(array_str), k)]
+            # Преобразование строк в массивы из чисел 0, 1, 2
+            array = [[int(x) for x in row] for row in array]
+            # Вывод массива в текстовое поле
+            self.text_area.insert(tk.END, str(array) + "\n")
 
 root = tk.Tk()
 app = ArrayGenerator(root)
 root.mainloop()
+
